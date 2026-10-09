@@ -10,7 +10,7 @@ sources into the Flutter plugin.
 ```gradle
 repositories { maven { url 'https://jitpack.io' } }
 dependencies {
-    implementation 'com.github.Tareq-Ghassan:DocScannerSDK-Android:1.0.0'
+    implementation 'com.github.Tareq-Ghassan:DocScannerSDK-Android:1.0.1'
 }
 ```
 
@@ -44,7 +44,7 @@ example/          # sample host app
 ## Release
 
 ```bash
-git tag 1.0.0 && git push origin 1.0.0
+git tag 1.0.1 && git push origin 1.0.1
 ```
 
 Tagging creates a GitHub Release and triggers JitPack.

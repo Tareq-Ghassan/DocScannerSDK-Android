@@ -7,7 +7,7 @@ package com.docscanner.sdk
  * Flutter wraps this library via JitPack — do not copy these sources into Flutter.
  */
 object DocScannerSDK {
-    const val VERSION = "1.0.0"
+    const val VERSION = "1.0.1"
 
     const val EXTRA_OPTIONS = "com.docscanner.sdk.OPTIONS"
     const val EXTRA_SCAN_BOTH_SIDES = "com.docscanner.sdk.SCAN_BOTH_SIDES"

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DocScanner Example</string>
+    <string name="scan_title">Scan front and back</string>
+    <string name="front_scan">Front of document</string>
+    <string name="back_scan">Back of document</string>
 </resources>
