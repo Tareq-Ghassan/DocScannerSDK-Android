@@ -63,6 +63,7 @@ class ScanFragment : Fragment() {
         
         setupCamera()
         setupUI()
+        applyOverlayOptions()
     }
     
     private fun setupUI() {
@@ -249,27 +250,32 @@ class ScanFragment : Fragment() {
     private fun saveCroppedImage(bitmap: Bitmap) {
         try {
             val file = createImageFile()
-            
+            val quality = viewModel.options.jpegQuality.coerceIn(1, 100)
+
             FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)
             }
-            
-            // Store path in ViewModel
-            if (viewModel.scanMode.value == ScanMode.FRONT) {
-                viewModel.setFrontImagePath(file.absolutePath)
-                // Check if we need to scan back side
-                if (viewModel.needsBackScan()) {
-                    viewModel.setScanMode(ScanMode.BACK)
-                    showInstruction()
-                    enableCaptureButton()
-                } else {
+
+            when (viewModel.scanMode.value) {
+                ScanMode.FRONT -> {
+                    viewModel.setFrontImagePath(file.absolutePath)
+                    if (viewModel.needsBackScan()) {
+                        viewModel.setScanMode(ScanMode.BACK)
+                        showInstruction()
+                        enableCaptureButton()
+                    } else {
+                        finishScanning()
+                    }
+                }
+                ScanMode.BACK -> {
+                    viewModel.setBackImagePath(file.absolutePath)
                     finishScanning()
                 }
-            } else {
-                viewModel.setBackImagePath(file.absolutePath)
-                finishScanning()
+                ScanMode.SINGLE, null -> {
+                    viewModel.setFrontImagePath(file.absolutePath)
+                    finishScanning()
+                }
             }
-            
         } catch (e: Exception) {
             Log.e(TAG, "Error saving image", e)
             showError("Failed to save image")
@@ -305,17 +311,32 @@ class ScanFragment : Fragment() {
     
     private fun showInstruction() {
         val message = when (viewModel.scanMode.value) {
-            ScanMode.FRONT -> "Position the front of the document within the frame"
-            ScanMode.BACK -> "Position the back of the document within the frame"
-            else -> "Position the document within the frame"
+            ScanMode.FRONT -> "Position the front of the document within the white frame"
+            ScanMode.BACK -> "Position the back of the document within the white frame"
+            else -> "Position the document within the white frame"
         }
-        
         binding.instructionText.text = message
+    }
+
+    private fun applyOverlayOptions() {
+        val opts = viewModel.options
+        val density = resources.displayMetrics.density
+        binding.overlayView.visibility =
+            if (opts.showCropOverlay) android.view.View.VISIBLE else android.view.View.GONE
+        binding.overlayView.borderColor = opts.overlayBorderColor
+        binding.overlayView.borderWidth = opts.overlayBorderWidthDp * density
+        binding.overlayView.cornerRadius = opts.overlayCornerRadiusDp * density
+        if (opts.flashEnabled) {
+            camera?.cameraControl?.enableTorch(true)
+        }
     }
     
     private fun finishScanning() {
-        requireActivity().setResult(android.app.Activity.RESULT_OK)
-        requireActivity().finish()
+        (requireActivity() as? DocScannerActivity)?.deliverResultAndFinish()
+            ?: run {
+                requireActivity().setResult(android.app.Activity.RESULT_OK)
+                requireActivity().finish()
+            }
     }
     
     private fun showError(message: String) {

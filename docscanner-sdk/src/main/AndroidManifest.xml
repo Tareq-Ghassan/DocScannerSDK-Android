@@ -11,6 +11,11 @@
 
     <application>
         <activity
+            android:name=".DocScannerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
             android:name=".MainActivityLib"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
